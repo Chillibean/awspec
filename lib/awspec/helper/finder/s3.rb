@@ -72,6 +72,13 @@ module Awspec::Helper
         nil
       end
 
+      def find_bucket_replication(id)
+        res = s3_client.get_bucket_replication(bucket: id)
+        res.replication_configuration
+      rescue Aws::S3::Errors::ServiceError
+        nil
+      end
+      
       def select_all_buckets
         s3_client.list_buckets.buckets
       end

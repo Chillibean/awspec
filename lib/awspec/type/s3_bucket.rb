@@ -123,6 +123,18 @@ module Awspec::Type
       sse_algorithm ? (sse_algorithm == algorithm) : false
     end
 
+    def has_replication?(destination_bucket: nil, status: nil, storage_class: nil)
+      check_existence
+      configuration = find_bucket_replication(id)
+      return true if destination_bucket.nil? && !configuration.nil?
+        
+      return false unless configuration
+      return false unless configuration.rules[0].destination.bucket == destination_bucket
+      return false unless configuration.rules[0].status == status
+      return false unless configuration.rules[0].destination.storage_class == storage_class
+      true
+    end
+          
     private
 
     def cors_rules
