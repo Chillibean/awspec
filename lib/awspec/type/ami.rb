@@ -11,6 +11,13 @@ module Awspec::Type
       @id ||= resource_via_client.image_id if resource_via_client
     end
 
+    def has_encryption?
+      resource_via_client.block_device_mappings.each do |device|
+        return false unless device.ebs.nil? || device.ebs.encrypted
+      end
+      return true
+    end
+    
     STATES = %w(
       pending available invalid deregistered
       transient failed error

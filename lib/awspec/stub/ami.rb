@@ -38,7 +38,7 @@ Aws.config[:ec2] = {
                 delete_on_termination: false,
                 volume_type: 'standard',
                 iops: nil,
-                encrypted: false
+                encrypted: true
               },
               no_device: nil
             }
