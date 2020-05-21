@@ -10,4 +10,5 @@ describe ami('my-ami') do
     its(:resource) { should be_an_instance_of(Awspec::ResourceReader) }
     its(:data) { should be_an_instance_of(Aws::EC2::Types::Image) }
   end
+  it { should have_encryption }
 end
