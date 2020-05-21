@@ -50,11 +50,19 @@ module Awspec::Type
       end
     end
 
-    def has_listener?(protocol:, port:, instance_protocol:, instance_port:)
+    def has_listener?(protocol:, port:, instance_protocol:, instance_port:, certificate: nil, policy: nil)
       resource_via_client.listener_descriptions.find do |desc|
         listener = desc.listener
-        listener.protocol == protocol && listener.load_balancer_port == port && \
+        policy_names = desc.policy_names
+        if certificate.nil?
+          listener.protocol == protocol && listener.load_balancer_port == port && \
           listener.instance_protocol == instance_protocol && listener.instance_port == instance_port
+        else
+          listener.protocol == protocol && listener.load_balancer_port == port && \
+          listener.instance_protocol == instance_protocol && listener.instance_port == instance_port && \
+          listener.ssl_certificate_id == certificate && \
+          policy_names.include?(policy)
+        end
       end
     end
 
