@@ -75,12 +75,61 @@ module Awspec::Type
     end
     alias_method :outbound_permissions_count, :ip_permissions_egress_count
 
+
+    def has_inbound_rule?(rule)
+      return resource_via_client.ip_permissions.find do |permission|
+        
+        result = true
+        
+        result = false unless permission.ip_protocol == rule[:ip_protocol]
+        result = false unless permission.from_port == rule[:from_port]
+        result = false unless permission.to_port == rule[:to_port]
+
+        if result
+          if rule[:ip_range]
+            result = permission.ip_ranges.find do | ip_range|
+              ip_range.cidr_ip == rule[:ip_range]
+            end
+          elsif rule[:group_id]
+            result = permission.user_id_group_pairs.find do |pair|
+              pair.group_id == rule[:group_id]
+            end
+          end
+        end
+        result
+      end
+    end
+    
     def inbound_rule_count
       resource_via_client.ip_permissions.reduce(0) do |sum, permission|
         sum += permission.ip_ranges.count + permission.user_id_group_pairs.count
       end
     end
 
+    def has_outbound_rule?(rule)
+      return resource_via_client.ip_permissions_egress.find do |permission|
+        
+        result = true
+        
+        result = false unless permission.ip_protocol == (rule[:ip_protocol]=="all" ? "-1" : rule[:ip_protocol])
+        result = false unless permission.ip_protocol == "-1" || permission.from_port == rule[:from_port]
+        result = false unless permission.ip_protocol == "-1" || permission.to_port == rule[:to_port]
+
+        if result
+          if rule[:ip_range]
+            result = permission.ip_ranges.find do | ip_range|
+              ip_range.cidr_ip == rule[:ip_range]
+            end
+          elsif rule[:group_id]
+            result = permission.user_id_group_pairs.find do |pair|
+              pair.group_id == rule[:group_id]
+            end
+          end
+        end
+        result
+      end
+    end
+    
     def outbound_rule_count
       resource_via_client.ip_permissions_egress.reduce(0) do |sum, permission|
         sum += permission.ip_ranges.count + permission.user_id_group_pairs.count
